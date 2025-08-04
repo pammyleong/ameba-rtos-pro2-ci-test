@@ -15,7 +15,7 @@ jobs:
           fetch-depth: 0
 
       - name: Add Gerrit remote and push
-        shell: pwsh
+        shell: bash
         env:
             GERRIT_SSH: 'ssh://pammyleong@sgcn3sd3-git.rtkbf.com:29418/ameba-rtos-pro2-test'
         run: |
