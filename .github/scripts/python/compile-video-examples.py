@@ -103,10 +103,24 @@ def build_example(example):
     # Copy built binary file to output directory
     built_bin_name = "flash_ntz.nn.bin" if "nn" in example.lower() else "flash_ntz.bin"
     built_bin_path = os.path.join(build_dir, built_bin_name)
-    output_bin_path = os.path.join(BIN_OUTPUT_DIR, f"{example}.bin")
-    os.makedirs(BIN_OUTPUT_DIR, exist_ok=True)
-    shutil.copyfile(built_bin_path, output_bin_path)
-    print(f"Saving built binary to: {output_bin_path}")
+    output_bin_dir = os.path.join(BIN_OUTPUT_DIR, f"{example}")
+    output_bin_path = os.path.join(output_bin_dir, built_bin_name)
+    os.makedirs(output_bin_dir, exist_ok=True)
+    shutil.copyfile(
+        built_bin_path, 
+        output_bin_path
+    )
+    
+    # Copy bin files to output directory
+    for firmware_file in ["firmware.bin", "firmware_isp_iq.bin", "system_files.bin"]:
+        firmware_path = os.path.join(build_dir, firmware_file)
+        if os.path.isfile(firmware_path):
+            shutil.copyfile(
+                firmware_path,
+                os.path.join(output_bin_dir, firmware_file)
+            )
+        else:
+            print(f"Warning: {firmware_file} not found in {build_dir}")
     
     # Clean for next build
     run('make clean', cwd=build_dir)
@@ -115,8 +129,6 @@ def main():
     try:
         # Get the list of examples passed
         examples_to_build = sys.argv[1:]
-        print(f"Received args: {sys.argv[1:]}")
-
         if not examples_to_build:
             examples_to_build = EXAMPLES
 
