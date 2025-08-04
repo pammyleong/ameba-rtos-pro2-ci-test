@@ -1,26 +1,53 @@
-name: Mirror to Gerrit
+# name: Mirror to Gerrit
+
+# on:
+#   push:
+#     branches:
+#       - main-ci-test
+
+# jobs:
+#   mirror:
+#     runs-on: [self-hosted]
+#     steps:
+#       - name: Checkout repo
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
+
+#       - name: Add Gerrit remote and push
+#         shell: bash
+#         env:
+#             GERRIT_SSH: 'ssh://pammyleong@sgcn3sd3-git.rtkbf.com:29418/ameba-rtos-pro2-test'
+#         run: |
+#             git config user.name "GitHub Actions"
+#             git config user.email "actions@github.com"
+#             git remote remove gerrit || true
+#             git remote add gerrit "$GERRIT_SSH"
+#             git push --force gerrit HEAD:refs/heads/main_rtk_ci_test
+
+name: Mirror GitHub → Gerrit
 
 on:
   push:
     branches:
-      - main-ci-test
+      - main-ci-test  # or your source branch
 
 jobs:
   mirror:
-    runs-on: [self-hosted]
+    runs-on: self-hosted
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Add Gerrit remote and push
+      - name: Set up SSH and push to Gerrit
         shell: bash
         env:
-            GERRIT_SSH: 'ssh://pammyleong@sgcn3sd3-git.rtkbf.com:29418/ameba-rtos-pro2-test'
+          GERRIT_SSH: ssh://pammyleong@sgcn3sd3-git.rtkbf.com:29418/ameba-rtos-pro2-test
         run: |
-            git config user.name "GitHub Actions"
-            git config user.email "actions@github.com"
-            git remote remove gerrit || true
-            git remote add gerrit "$GERRIT_SSH"
-            git push --force gerrit HEAD:refs/heads/main_rtk_ci_test
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git remote remove gerrit || true
+          git remote add gerrit "$GERRIT_SSH"
+          git push --force gerrit HEAD:refs/heads/main_rtk_ci_test
