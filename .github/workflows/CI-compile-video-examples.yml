@@ -6,8 +6,8 @@ name: Build Video/NN Examples
 
 on:
   push:
-    branches:
-      - "main-ci-test"
+    # branches:
+    #   - "main-ci-test"
   #   paths:
   #   - '.github/workflows/CI-compile-video-examples.yml'
   #   - '.github/scripts/python/compile-video-examples.py'

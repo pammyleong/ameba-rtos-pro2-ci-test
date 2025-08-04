@@ -21,5 +21,6 @@ jobs:
         run: |
             git config user.name "GitHub Actions"
             git config user.email "actions@github.com"
+            git remote remove gerrit || true
             git remote add gerrit "$GERRIT_SSH"
             git push --force gerrit HEAD:refs/heads/main_rtk_ci_test
