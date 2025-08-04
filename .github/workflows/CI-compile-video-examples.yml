@@ -147,14 +147,14 @@ jobs:
 
       - name: Set Git author identity
         working-directory: rtos
-        shell: powershell
+        # shell: powershell
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
       - name: Git LFS track and commit binaries
         working-directory: rtos
-        shell: powershell
+        # shell: powershell
         run: |
           git lfs track "project/realtek_amebapro2_v0_example/bin_outputs/**/*.bin"
           git add .gitattributes
@@ -163,7 +163,7 @@ jobs:
 
       - name: Create dev-bin-artifacts branch and push binaries
         working-directory: rtos
-        shell: powershell
+        # shell: powershell
         run: |
           git checkout -B dev-bin-artifacts
           git remote remove gerrit -ErrorAction SilentlyContinue
