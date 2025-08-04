@@ -3,7 +3,7 @@ name: Mirror to Gerrit
 on:
   push:
     branches:
-      - dev-gerrit
+      - main-ci-test
 
 jobs:
   mirror:
@@ -17,7 +17,7 @@ jobs:
       - name: Add Gerrit remote and push
         shell: pwsh
         env:
-            GERRIT_SSH: 'ssh://sihjiaqi@sgcn3sd3-git.rtkbf.com:29418/ameba-rtos-pro2-forked'
+            GERRIT_SSH: 'ssh://pammyleong@sgcn3sd3-git.rtkbf.com:29418/ameba-rtos-pro2-test'
         run: |
             git config user.name "GitHub Actions"
             git config user.email "actions@github.com"

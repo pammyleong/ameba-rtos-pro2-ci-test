@@ -190,16 +190,17 @@ jobs:
 
       - name: Create dev-bin-artifacts branch and push binaries
         working-directory: rtos
-        shell: bash  # Linux-compatible shell (keep this!)
+        shell: bash
         run: |
           git checkout -B dev-bin-artifacts
 
-          # Safely remove existing gerrit remote if present
+          # Ensure remote is added first!
           git remote remove gerrit || true
-
-          # Add new remote and push
           git remote add gerrit ssh://pammyleong@sgcn3sd3-git.rtkbf.com:29418/ameba-rtos-pro2-test
-          git push --force gerrit HEAD:refs/heads/dev-bin-artifacts
 
-          # Push LFS objects
-          git lfs push gerrit refs/heads/dev-bin-artifacts
+          # Optional: Commit changes if needed
+          git add -A
+          git commit -m "Push dev-bin-artifacts" || echo "Nothing to commit"
+
+          # Push branch (force if overwriting)
+          git push --force gerrit HEAD:refs/heads/dev-bin-artifacts
