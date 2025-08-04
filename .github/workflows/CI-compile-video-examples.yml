@@ -147,22 +147,39 @@ jobs:
 
       - name: Set Git author identity
         working-directory: rtos
+        shell: bash  # Force Linux-compatible shell
         # shell: powershell
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
+      # - name: Git LFS track and commit binaries
+      #   working-directory: rtos
+      #   # shell: powershell
+      #   run: |
+      #     git lfs track "**/*.bin"
+      #     git add .gitattributes
+      #     git add project/realtek_amebapro2_v0_example/bin_outputs
+      #     git commit -m "Update binary artifacts" -ErrorAction SilentlyContinue
+
       - name: Git LFS track and commit binaries
         working-directory: rtos
-        # shell: powershell
+        shell: bash  # Force Linux-compatible shell
         run: |
-          git lfs track "project/realtek_amebapro2_v0_example/bin_outputs/**/*.bin"
+          # Track .bin files in top-level and subfolder
+          git lfs track "project/realtek_amebapro2_v0_example/bin_outputs/*.bin"
+          git lfs track "project/realtek_amebapro2_v0_example/bin_outputs/*/*.bin"
           git add .gitattributes
+
+          # Add all binary outputs
           git add project/realtek_amebapro2_v0_example/bin_outputs
-          git commit -m "Update binary artifacts" -ErrorAction SilentlyContinue
+
+          # Commit if changes exist
+          git commit -m "Update binary artifacts" || echo "No changes to commit"
 
       - name: Create dev-bin-artifacts branch and push binaries
         working-directory: rtos
+        shell: bash  # Force Linux-compatible shell
         # shell: powershell
         run: |
           git checkout -B dev-bin-artifacts
