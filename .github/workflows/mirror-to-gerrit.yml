@@ -22,4 +22,4 @@ jobs:
             git config user.name "GitHub Actions"
             git config user.email "actions@github.com"
             git remote add gerrit "$env:GERRIT_SSH"
-            git push --force gerrit dev-gerrit
+            git push --force gerrit main_rtk_ci_test
