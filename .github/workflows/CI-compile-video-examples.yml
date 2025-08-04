@@ -177,13 +177,29 @@ jobs:
           # Commit if changes exist
           git commit -m "Update binary artifacts" || echo "No changes to commit"
 
+      # - name: Create dev-bin-artifacts branch and push binaries
+      #   working-directory: rtos
+      #   shell: bash  # Force Linux-compatible shell
+      #   # shell: powershell
+      #   run: |
+      #     git checkout -B dev-bin-artifacts
+      #     git remote remove gerrit -ErrorAction SilentlyContinue
+      #     git remote add gerrit ssh://pammyleong@sgcn3sd3-git.rtkbf.com:29418/ameba-rtos-pro2-test
+      #     git push --force gerrit HEAD:refs/heads/dev-bin-artifacts
+      #     git lfs push gerrit refs/heads/dev-bin-artifacts
+
       - name: Create dev-bin-artifacts branch and push binaries
         working-directory: rtos
-        shell: bash  # Force Linux-compatible shell
-        # shell: powershell
+        shell: bash  # Linux-compatible shell (keep this!)
         run: |
           git checkout -B dev-bin-artifacts
-          git remote remove gerrit -ErrorAction SilentlyContinue
+
+          # Safely remove existing gerrit remote if present
+          git remote remove gerrit || true
+
+          # Add new remote and push
           git remote add gerrit ssh://pammyleong@sgcn3sd3-git.rtkbf.com:29418/ameba-rtos-pro2-test
           git push --force gerrit HEAD:refs/heads/dev-bin-artifacts
+
+          # Push LFS objects
           git lfs push gerrit refs/heads/dev-bin-artifacts
