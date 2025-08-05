@@ -166,6 +166,9 @@ jobs:
         working-directory: rtos
         shell: bash  # Force Linux-compatible shell
         run: |
+          # Reset staged changes from earlier steps
+          git reset
+
           # Track .bin files in top-level and subfolder
           git lfs track "project/realtek_amebapro2_v0_example/bin_outputs/*.bin"
           git lfs track "project/realtek_amebapro2_v0_example/bin_outputs/*/*.bin"
