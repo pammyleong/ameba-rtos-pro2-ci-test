@@ -53,22 +53,22 @@ jobs:
         with:
           path: rtos
           
-      - name: Install Git LFS (Linux/macOS)
-        if: runner.os != 'Windows'
-        run: |
-          sudo apt-get update
-          sudo apt-get install git-lfs -y
-          git lfs install
+      # - name: Install Git LFS (Linux/macOS)
+      #   if: runner.os != 'Windows'
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install git-lfs -y
+      #     git lfs install
 
-      - name: Install Git LFS (Windows)
-        if: runner.os == 'Windows'
-        shell: powershell
-        run: |
-          if (-not (git lfs version)) {
-            Write-Error "Git LFS not installed or not in PATH. Please install Git LFS manually on the self-hosted runner."
-            exit 1
-          }
-          git lfs install
+      # - name: Install Git LFS (Windows)
+      #   if: runner.os == 'Windows'
+      #   shell: powershell
+      #   run: |
+      #     if (-not (git lfs version)) {
+      #       Write-Error "Git LFS not installed or not in PATH. Please install Git LFS manually on the self-hosted runner."
+      #       exit 1
+      #     }
+      #     git lfs install
 
       # Avoid Windows path length limit
       - name: Move to short path (Windows)
@@ -208,20 +208,20 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
-          git checkout -B dev-bin-artifacts
+          git checkout -B bin-artifacts
 
           git remote remove gerrit || true
           git remote add gerrit ssh:pammyleong//sgcn3sd3-git.rtkbf.com:29418/ameba-rtos-pro2-test
 
           git remote -v
-
+          
           git add -A
 
           if ! git diff --cached --quiet; then
-            git commit -m "Initial push for dev-bin-artifacts"
+            git commit -m "Push bin-artifacts"
           else
             echo "No changes to commit"
           fi
 
           # Push branch to Gerrit directly
-          git push gerrit dev-bin-artifacts:refs/heads/dev-bin-artifacts
+          git push --force gerrit HEAD:refs/heads/bin-artifacts
