@@ -194,10 +194,7 @@ jobs:
           echo -e "\n📂 Files currently modified but not staged:"
           git status --short
 
-          git commit -m "Push staged LFS .bin files to bin-artifacts" || echo "Nothing to commit"
-          git push --force gerrit HEAD:refs/heads/bin-artifacts
-
-      - name: Push binaries to bin-artifacts branch
+      - name: Create dev-bin-artifacts branch and push binaries
         working-directory: rtos
         shell: bash
         run: |
@@ -208,12 +205,19 @@ jobs:
           git remote add gerrit ssh://pammyleong@sgcn3sd3-git.rtkbf.com:29418/ameba-rtos-pro2-test
           git remote -v
 
-          # Add only .bin files
-          find project/realtek_amebapro2_v0_example/bin_outputs/ -type f -name "*.bin" -exec git add {} +
+          # Track all .bin files in subfolders with Git LFS
+          git lfs track "project/realtek_amebapro2_v0_example/bin_outputs/**/*.bin"
+          git add .gitattributes
 
-          echo "🔍 Files that will be committed:"
+          # Add only files tracked by LFS
+          git lfs ls-files -n | xargs git add
+
+          # Confirm what’s staged
+          echo "🔍 Files to be committed:"
           git diff --cached --name-only
 
+          # # Optional: Commit changes if needed
+          # git add -A
           git commit -m "Push bin-artifacts" || echo "Nothing to commit"
 
           # Push branch (force if overwriting)
