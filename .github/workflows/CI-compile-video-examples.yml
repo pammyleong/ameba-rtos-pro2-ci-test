@@ -191,37 +191,16 @@ jobs:
       - name: Create dev-bin-artifacts branch and push binaries
         working-directory: rtos
         shell: bash
-        # run: |
-        #   git checkout -B dev-bin-artifacts
-
-        #   # Ensure remote is added first!
-        #   git remote remove gerrit || true
-        #   git remote add gerrit ssh://pammyleong@sgcn3sd3-git.rtkbf.com:29418/ameba-rtos-pro2-test
-
-        #   # Optional: Commit changes if needed
-        #   git add -A
-        #   git commit -m "Push dev-bin-artifacts" || echo "Nothing to commit"
-
-        #   # Push branch (force if overwriting)
-        #   git push --force gerrit HEAD:refs/heads/dev-bin-artifacts
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-
           git checkout -B bin-artifacts
 
+          # Ensure remote is added first!
           git remote remove gerrit || true
-          git remote add gerrit ssh:pammyleong@sgcn3sd3-git.rtkbf.com:29418/ameba-rtos-pro2-test
+          git remote add gerrit ssh://pammyleong@sgcn3sd3-git.rtkbf.com:29418/ameba-rtos-pro2-test
 
-          git remote -v
-          
+          # Optional: Commit changes if needed
           git add -A
+          git commit -m "Push bin-artifacts" || echo "Nothing to commit"
 
-          if ! git diff --cached --quiet; then
-            git commit -m "Push bin-artifacts"
-          else
-            echo "No changes to commit"
-          fi
-
-          # Push branch to Gerrit directly
+          # Push branch (force if overwriting)
           git push --force gerrit HEAD:refs/heads/bin-artifacts
