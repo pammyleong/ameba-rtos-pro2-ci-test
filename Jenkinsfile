@@ -1,5 +1,5 @@
 pipeline {
-  agent { label 'windows-agent' }
+  agent { label 'linux-agent' }
 
   parameters {
     string(name: 'GERRIT_PROJECT', defaultValue: '', description: 'Gerrit project name (from Gerrit Trigger)')
@@ -34,11 +34,11 @@ pipeline {
 
     stage('Checkout Arduino Tools Repo') {
       steps {
-        dir('ameba-arduino-pro2-forked') {
+        dir('ameba-arduino-pro2-test') {
           checkout([$class: 'GitSCM',
             branches: [[name: "main"]],
             userRemoteConfigs: [[
-              url: "ssh://pammyleong@sgcn3sd3-git.rtkbf.com:29418/ameba-arduino-pro2-forked",
+              url: "ssh://pammyleong@sgcn3sd3-git.rtkbf.com:29418/ameba-arduino-pro2-test",
               credentialsId: "${env.GERRIT_CREDENTIAL_ID}"
             ]]
           ])
@@ -63,13 +63,13 @@ pipeline {
           echo "Detected OS: ${isUnix() ? 'Unix-like' : 'Windows'}"
 
           if (isUnix()) {
-            toolsSource = "ameba-arduino-pro2-forked/Arduino_package/ameba_pro2_tools_linux"
+            toolsSource = "ameba-arduino-pro2-test/Arduino_package/ameba_pro2_tools_linux"
             toolsFolder = "${env.WORKSPACE}/unzipped_artifacts/ameba_pro2_tools_linux"
             imageExe    = "${toolsFolder}/image_linux"
             sh "mkdir -p ${toolsFolder}"
             sh "cp -r ${toolsSource}/* ${toolsFolder}/"
           } else {
-            toolsSource = "ameba-arduino-pro2-forked\\Arduino_package\\ameba_pro2_tools_windows"
+            toolsSource = "ameba-arduino-pro2-test\\Arduino_package\\ameba_pro2_tools_windows"
             toolsFolder = "${env.WORKSPACE}\\unzipped_artifacts\\ameba_pro2_tools_windows"
             imageExe    = "${toolsFolder}\\image_windows.exe"
             bat "mkdir ${toolsFolder}"
