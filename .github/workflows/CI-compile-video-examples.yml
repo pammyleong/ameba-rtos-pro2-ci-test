@@ -213,13 +213,15 @@ jobs:
           git remote remove gerrit || true
           git remote add gerrit ssh:pammyleong//sgcn3sd3-git.rtkbf.com:29418/ameba-rtos-pro2-test
 
+          git remote -v
+
           git add -A
 
           if ! git diff --cached --quiet; then
-            git commit -m "Push dev-bin-artifacts"
+            git commit -m "Initial push for dev-bin-artifacts"
           else
             echo "No changes to commit"
           fi
 
           # Push branch to Gerrit directly
-          git push --force gerrit HEAD:refs/heads/dev-bin-artifacts
+          git push gerrit dev-bin-artifacts:refs/heads/dev-bin-artifacts
