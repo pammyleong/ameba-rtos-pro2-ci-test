@@ -211,7 +211,7 @@ jobs:
           git checkout -B bin-artifacts
 
           git remote remove gerrit || true
-          git remote add gerrit ssh:pammyleong//sgcn3sd3-git.rtkbf.com:29418/ameba-rtos-pro2-test
+          git remote add gerrit ssh:pammyleong@sgcn3sd3-git.rtkbf.com:29418/ameba-rtos-pro2-test
 
           git remote -v
           
