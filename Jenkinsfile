@@ -100,80 +100,80 @@ pipeline {
       }
     }
 
-    stage('Flash to Hardware') {
-      when {
-        expression { params.RUN_ID && params.BATCH_ID }
-      }
-      steps {
-        lock(resource: 'test-board', quantity: 1) {
-          script {
-            def comPort = ""
-            def pythonExe = ""
-            def scriptPath = ""
-            // Find serial port for Linux or macOS
-            if (isUnix()) {
-              echo "Detecting serial port..."
-              def serialList = sh(
-                script: '''
-                  ls /dev/ttyUSB* /dev/ttyACM* 2>/dev/null || true
-                ''',
-                returnStdout: true
-              ).trim().split('\n')
-              if (serialList.size() == 0 || serialList[0].trim() == "") {
-                error("No serial ports found! Is the board connected?")
-              }
-              comPort = serialList[0].trim()
-              echo "Detected serial port: ${comPort}"
-              pythonExe = "python3"
-              scriptPath = "${env.WORKSPACE}/scripts/flash_firmware.py"
-              sh """
-                ${pythonExe} ${scriptPath} \
-                  --image_exe "${IMAGE_EXE}" \
-                  --tools_path "${TOOLS_FOLDER}" \
-                  --com_port "${comPort}" \
-                  --board "${board}"
-                  > flash_log.txt 2>&1
-              """
-              sh "cat flash_log.txt"
-            } 
-            // Windows
-            else {
-              def comPorts = powershell(returnStdout: true, script: '''
-              Get-PnpDevice -Class "Ports" | Where-Object { $_.FriendlyName -match "COM" } | ForEach-Object {
-                if ($_ -match "\\(COM[0-9]+\\)") {
-                  $matches[0] -replace "[()]", ""
-                }
-              }
-              ''').trim().split('\n')
+    // stage('Flash to Hardware') {
+    //   when {
+    //     expression { params.RUN_ID && params.BATCH_ID }
+    //   }
+    //   steps {
+    //     lock(resource: 'test-board', quantity: 1) {
+    //       script {
+    //         def comPort = ""
+    //         def pythonExe = ""
+    //         def scriptPath = ""
+    //         // Find serial port for Linux or macOS
+    //         if (isUnix()) {
+    //           echo "Detecting serial port..."
+    //           def serialList = sh(
+    //             script: '''
+    //               ls /dev/ttyUSB* /dev/ttyACM* 2>/dev/null || true
+    //             ''',
+    //             returnStdout: true
+    //           ).trim().split('\n')
+    //           if (serialList.size() == 0 || serialList[0].trim() == "") {
+    //             error("No serial ports found! Is the board connected?")
+    //           }
+    //           comPort = serialList[0].trim()
+    //           echo "Detected serial port: ${comPort}"
+    //           pythonExe = "python3"
+    //           scriptPath = "${env.WORKSPACE}/scripts/flash_firmware.py"
+    //           sh """
+    //             ${pythonExe} ${scriptPath} \
+    //               --image_exe "${IMAGE_EXE}" \
+    //               --tools_path "${TOOLS_FOLDER}" \
+    //               --com_port "${comPort}" \
+    //               --board "${board}"
+    //               > flash_log.txt 2>&1
+    //           """
+    //           sh "cat flash_log.txt"
+    //         } 
+    //         // Windows
+    //         else {
+    //           def comPorts = powershell(returnStdout: true, script: '''
+    //           Get-PnpDevice -Class "Ports" | Where-Object { $_.FriendlyName -match "COM" } | ForEach-Object {
+    //             if ($_ -match "\\(COM[0-9]+\\)") {
+    //               $matches[0] -replace "[()]", ""
+    //             }
+    //           }
+    //           ''').trim().split('\n')
               
-              // comport = comPorts[0].trim()
-              comPort = "COM3" 
-              echo "Detected COM port: ${comPort}"
+    //           // comport = comPorts[0].trim()
+    //           comPort = "COM3" 
+    //           echo "Detected COM port: ${comPort}"
 
-              def userNameRaw = bat(script: 'echo %USERNAME%', returnStdout: true).trim()
-              def userName = userNameRaw.split('\n')[-1].trim()
-              echo "Agent user: ${userName}"
+    //           def userNameRaw = bat(script: 'echo %USERNAME%', returnStdout: true).trim()
+    //           def userName = userNameRaw.split('\n')[-1].trim()
+    //           echo "Agent user: ${userName}"
 
-              pythonExe = "C:\\Users\\${userName}\\AppData\\Local\\Programs\\Python\\Python313\\python.exe"
-              scriptPath = "${env.WORKSPACE}\\scripts\\flash_firmware.py"
-              bat """
-                ${pythonExe} ${scriptPath} ^
-                  --image_exe "${IMAGE_EXE}" ^
-                  --tools_path "${TOOLS_FOLDER}" ^
-                  --com_port "${comPort}" ^
-                  --board "${board}" > flash_log.txt 2>&1
-              """
-              bat "type flash_log.txt"
-            }
-          }
-        }
-      }
-      post {
-        always {
-          archiveArtifacts artifacts: 'flash_log.txt', allowEmptyArchive: true
-          echo "Job done for batch ${params.BATCH_ID}"
-        }
-      }
-    }
+    //           pythonExe = "C:\\Users\\${userName}\\AppData\\Local\\Programs\\Python\\Python313\\python.exe"
+    //           scriptPath = "${env.WORKSPACE}\\scripts\\flash_firmware.py"
+    //           bat """
+    //             ${pythonExe} ${scriptPath} ^
+    //               --image_exe "${IMAGE_EXE}" ^
+    //               --tools_path "${TOOLS_FOLDER}" ^
+    //               --com_port "${comPort}" ^
+    //               --board "${board}" > flash_log.txt 2>&1
+    //           """
+    //           bat "type flash_log.txt"
+    //         }
+    //       }
+    //     }
+    //   }
+    //   post {
+    //     always {
+    //       archiveArtifacts artifacts: 'flash_log.txt', allowEmptyArchive: true
+    //       echo "Job done for batch ${params.BATCH_ID}"
+    //     }
+    //   }
+    // }
   }
 }
