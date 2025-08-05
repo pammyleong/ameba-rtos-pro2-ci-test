@@ -162,53 +162,65 @@ jobs:
       #     git add project/realtek_amebapro2_v0_example/bin_outputs
       #     git commit -m "Update binary artifacts" -ErrorAction SilentlyContinue
 
-      - name: Git LFS track and commit binaries
-        working-directory: rtos
-        shell: bash  # Force Linux-compatible shell
-        run: |
-          # Reset staged changes from earlier steps
-          git reset
+      # - name: Git LFS track and commit binaries
+      #   working-directory: rtos
+      #   shell: bash  # Force Linux-compatible shell
+      #   run: |
+      #     # Reset staged changes from earlier steps
+      #     git reset
 
-          # Track .bin files in top-level and subfolder
-          git lfs track "project/realtek_amebapro2_v0_example/bin_outputs/*.bin"
-          git lfs track "project/realtek_amebapro2_v0_example/bin_outputs/*/*.bin"
-          git add .gitattributes || true
+      #     # Track .bin files in top-level and subfolder
+      #     git lfs track "project/realtek_amebapro2_v0_example/bin_outputs/*.bin"
+      #     git lfs track "project/realtek_amebapro2_v0_example/bin_outputs/*/*.bin"
+      #     git add .gitattributes || true
 
-          # Only stage .bin files (using find ensures no non-bin files are added)
-          find project/realtek_amebapro2_v0_example/bin_outputs/ -type f -name "*.bin" -exec git add {} +
-          git commit -m "Update binary artifacts" || echo "No changes to commit"
-          
-      - name: Show Git LFS files before push
+      #     # Only stage .bin files (using find ensures no non-bin files are added)
+      #     find project/realtek_amebapro2_v0_example/bin_outputs/ -type f -name "*.bin" -exec git add {} +
+      #     git commit -m "Update binary artifacts" || echo "No changes to commit"
+
+      # - name: Show Git LFS files before push
+      #   working-directory: rtos
+      #   shell: bash
+      #   run: |
+      #     echo "🔍 LFS-tracked files in repo:"
+      #     git lfs ls-files || echo "No LFS files tracked"
+
+      #     echo -e "\n📦 LFS files staged for commit:"
+      #     git lfs status || echo "No LFS status found"
+
+      #     echo -e "\n📝 All files staged for commit:"
+      #     git diff --cached --name-status || echo "No staged files"
+
+      #     echo -e "\n📂 Files currently modified but not staged:"
+      #     git status --short
+
+      - name: Track LFS and push binaries to bin-artifacts branch
         working-directory: rtos
         shell: bash
         run: |
+          git checkout -B bin-artifacts
+
+          # Set Gerrit remote
+          git remote remove gerrit || true
+          git remote add gerrit ssh://pammyleong@sgcn3sd3-git.rtkbf.com:29418/ameba-rtos-pro2-test
+          git remote -v
+
+          # Track all .bin files in subfolders with Git LFS
+          git lfs track "project/realtek_amebapro2_v0_example/bin_outputs/*.bin"
+          git lfs track "project/realtek_amebapro2_v0_example/bin_outputs/**/*.bin"
+          git add .gitattributes
+
           echo "🔍 LFS-tracked files in repo:"
           git lfs ls-files || echo "No LFS files tracked"
 
           echo -e "\n📦 LFS files staged for commit:"
           git lfs status || echo "No LFS status found"
 
-          echo -e "\n📝 All files staged for commit:"
-          git diff --cached --name-status || echo "No staged files"
+          # Add only .bin files
+          # find project/realtek_amebapro2_v0_example/bin_outputs/ -type f -name "*.bin" -exec git add {} +
 
-          echo -e "\n📂 Files currently modified but not staged:"
-          git status --short
+          # git commit -m "Push bin-artifacts" || echo "Nothing to commit"
 
-      # - name: Create dev-bin-artifacts branch and push binaries
-      #   working-directory: rtos
-      #   shell: bash
-      #   run: |
-      #     git checkout -B bin-artifacts
-
-      #     # Ensure remote is added first!
-      #     git remote remove gerrit || true
-      #     git remote add gerrit ssh://pammyleong@sgcn3sd3-git.rtkbf.com:29418/ameba-rtos-pro2-test
-      #     git remote -v
-
-      #     # Optional: Commit changes if needed
-      #     git add -A
-      #     git commit -m "Push bin-artifacts" || echo "Nothing to commit"
-
-      #     # Push branch (force if overwriting)
-      #     git push --force gerrit HEAD:refs/heads/bin-artifacts
+          # # Push branch (force if overwriting)
+          # git push --force gerrit HEAD:refs/heads/bin-artifacts
 
