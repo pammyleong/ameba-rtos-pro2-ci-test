@@ -194,6 +194,9 @@ jobs:
           echo -e "\n📂 Files currently modified but not staged:"
           git status --short
 
+          git commit -m "Push staged LFS .bin files to bin-artifacts" || echo "Nothing to commit"
+          git push --force gerrit HEAD:refs/heads/bin-artifacts
+
       - name: Push binaries to bin-artifacts branch
         working-directory: rtos
         shell: bash
@@ -211,8 +214,8 @@ jobs:
           echo "🔍 Files that will be committed:"
           git diff --cached --name-only
 
-          # git commit -m "Push bin-artifacts" || echo "Nothing to commit"
+          git commit -m "Push bin-artifacts" || echo "Nothing to commit"
 
-          # # Push branch (force if overwriting)
-          # git push --force gerrit HEAD:refs/heads/bin-artifacts
+          # Push branch (force if overwriting)
+          git push --force gerrit HEAD:refs/heads/bin-artifacts
 
