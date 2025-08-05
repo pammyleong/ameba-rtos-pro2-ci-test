@@ -210,7 +210,7 @@ jobs:
           git add .gitattributes
 
           # Add only files tracked by LFS
-          git lfs ls-files -n | xargs git add
+          find project/realtek_amebapro2_v0_example/bin_outputs/ -type f -name "*.bin" -exec git add {} +
 
           # Confirm what’s staged
           echo "🔍 Files to be committed:"
