@@ -7,8 +7,8 @@ pipeline {
   }
 
   environment {
-    GERRIT_CREDENTIAL_ID = 'gerrit-ssh-key-credential-id'
-    BOARD = 'Ameba_AMB82-MINI'
+    GERRIT_CREDENTIAL_ID = 'gerrit-pammy-key'
+    // BOARD = 'Ameba_AMB82-MINI'
   }
 
   stages {

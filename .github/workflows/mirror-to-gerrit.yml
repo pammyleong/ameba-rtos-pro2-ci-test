@@ -1,7 +1,7 @@
 name: Mirror to Gerrit
 
-on:
-  push:
+# on:
+#   push:
   #   branches:
   #     - main-ci-test
   # workflow_dispatch:
