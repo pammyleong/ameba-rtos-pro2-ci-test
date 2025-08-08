@@ -200,8 +200,8 @@ jobs:
         run: |
           git checkout -B bin-artifacts
 
-          # Clean all tracked files
-          git rm -rf . || true
+          # # Clean all tracked files
+          # git rm -rf . || true
 
           # Set Gerrit remote
           git remote remove gerrit || true

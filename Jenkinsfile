@@ -3,7 +3,7 @@ pipeline {
 
   parameters {
     string(name: 'GERRIT_PROJECT', defaultValue: 'ameba-rtos-pro2-test', description: 'Gerrit project name (from Gerrit Trigger)')
-    string(name: 'GERRIT_BRANCH', defaultValue: 'main_rtk_ci_test', description: 'Branch to build (from Gerrit Trigger)')
+    string(name: 'GERRIT_BRANCH', defaultValue: 'bin-artifacts', description: 'Branch to build (from Gerrit Trigger)')
   }
 
   environment {
