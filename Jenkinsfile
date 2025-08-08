@@ -2,8 +2,8 @@ pipeline {
   agent { label 'linux-agent' }
 
   parameters {
-    string(name: 'GERRIT_PROJECT', defaultValue: '', description: 'Gerrit project name (from Gerrit Trigger)')
-    string(name: 'GERRIT_BRANCH', defaultValue: 'main', description: 'Branch to build (from Gerrit Trigger)')
+    string(name: 'GERRIT_PROJECT', defaultValue: 'ameba-rtos-pro2-test', description: 'Gerrit project name (from Gerrit Trigger)')
+    string(name: 'GERRIT_BRANCH', defaultValue: 'main_rtk_ci_test', description: 'Branch to build (from Gerrit Trigger)')
   }
 
   environment {
@@ -32,73 +32,73 @@ pipeline {
       }
     }
 
-    stage('Checkout Arduino Tools Repo') {
-      steps {
-        dir('ameba-arduino-pro2-test') {
-          checkout([$class: 'GitSCM',
-            branches: [[name: "main"]],
-            userRemoteConfigs: [[
-              url: "ssh://pammyleong@sgcn3sd3-git.rtkbf.com:29418/ameba-arduino-pro2-test",
-              credentialsId: "${env.GERRIT_CREDENTIAL_ID}"
-            ]]
-          ])
-        }
-      }
-    }
+    // stage('Checkout Arduino Tools Repo') {
+    //   steps {
+    //     dir('ameba-arduino-pro2-test') {
+    //       checkout([$class: 'GitSCM',
+    //         branches: [[name: "main"]],
+    //         userRemoteConfigs: [[
+    //           url: "ssh://pammyleong@sgcn3sd3-git.rtkbf.com:29418/ameba-arduino-pro2-test",
+    //           credentialsId: "${env.GERRIT_CREDENTIAL_ID}"
+    //         ]]
+    //       ])
+    //     }
+    //   }
+    // }
 
-    // Pulls firmware binaries from LFS to the workspace
-    stage('Pull LFS binaries') {
-      steps {
-        sh 'git lfs pull'
-      }
-    }
+    // // Pulls firmware binaries from LFS to the workspace
+    // stage('Pull LFS binaries') {
+    //   steps {
+    //     sh 'git lfs pull'
+    //   }
+    // }
 
-    stage('Setup Tools Folder') {
-      steps {
-        script {
-          def toolsFolder = ""
-          def imageExe = ""
-          def toolsSource = ""
+    // stage('Setup Tools Folder') {
+    //   steps {
+    //     script {
+    //       def toolsFolder = ""
+    //       def imageExe = ""
+    //       def toolsSource = ""
 
-          echo "Detected OS: ${isUnix() ? 'Unix-like' : 'Windows'}"
+    //       echo "Detected OS: ${isUnix() ? 'Unix-like' : 'Windows'}"
 
-          if (isUnix()) {
-            toolsSource = "ameba-arduino-pro2-test/Arduino_package/ameba_pro2_tools_linux"
-            toolsFolder = "${env.WORKSPACE}/unzipped_artifacts/ameba_pro2_tools_linux"
-            imageExe    = "${toolsFolder}/image_linux"
-            sh "mkdir -p ${toolsFolder}"
-            sh "cp -r ${toolsSource}/* ${toolsFolder}/"
-          } else {
-            toolsSource = "ameba-arduino-pro2-test\\Arduino_package\\ameba_pro2_tools_windows"
-            toolsFolder = "${env.WORKSPACE}\\unzipped_artifacts\\ameba_pro2_tools_windows"
-            imageExe    = "${toolsFolder}\\image_windows.exe"
-            bat "mkdir ${toolsFolder}"
-            powershell """
-              Copy-Item -Recurse -Force '${toolsSource}\\*' '${toolsFolder}\\'
-            """
-          }
+    //       if (isUnix()) {
+    //         toolsSource = "ameba-arduino-pro2-test/Arduino_package/ameba_pro2_tools_linux"
+    //         toolsFolder = "${env.WORKSPACE}/unzipped_artifacts/ameba_pro2_tools_linux"
+    //         imageExe    = "${toolsFolder}/image_linux"
+    //         sh "mkdir -p ${toolsFolder}"
+    //         sh "cp -r ${toolsSource}/* ${toolsFolder}/"
+    //       } else {
+    //         toolsSource = "ameba-arduino-pro2-test\\Arduino_package\\ameba_pro2_tools_windows"
+    //         toolsFolder = "${env.WORKSPACE}\\unzipped_artifacts\\ameba_pro2_tools_windows"
+    //         imageExe    = "${toolsFolder}\\image_windows.exe"
+    //         bat "mkdir ${toolsFolder}"
+    //         powershell """
+    //           Copy-Item -Recurse -Force '${toolsSource}\\*' '${toolsFolder}\\'
+    //         """
+    //       }
 
-          env.TOOLS_FOLDER = toolsFolder
-          env.IMAGE_EXE = imageExe
+    //       env.TOOLS_FOLDER = toolsFolder
+    //       env.IMAGE_EXE = imageExe
 
-          echo "Tools prepared in: ${toolsFolder}"
-        }
-      }
-    }
+    //       echo "Tools prepared in: ${toolsFolder}"
+    //     }
+    //   }
+    // }
 
-    stage('Prepare Flash Tools') {
-      steps {
-        script {
-          if (isUnix()) {
-            sh "mkdir -p ${TOOLS_FOLDER}"
-            sh "cp -r arduino-tools-repo/Arduino_package/ameba_pro2_tools_linux/* ${TOOLS_FOLDER}/"
-          } else {
-            bat "mkdir ${TOOLS_FOLDER}"
-            bat "xcopy arduino-tools-repo\\Arduino_package\\ameba_pro2_tools_windows\\* ${TOOLS_FOLDER}\\ /E /I /Y"
-          }
-        }
-      }
-    }
+    // stage('Prepare Flash Tools') {
+    //   steps {
+    //     script {
+    //       if (isUnix()) {
+    //         sh "mkdir -p ${TOOLS_FOLDER}"
+    //         sh "cp -r arduino-tools-repo/Arduino_package/ameba_pro2_tools_linux/* ${TOOLS_FOLDER}/"
+    //       } else {
+    //         bat "mkdir ${TOOLS_FOLDER}"
+    //         bat "xcopy arduino-tools-repo\\Arduino_package\\ameba_pro2_tools_windows\\* ${TOOLS_FOLDER}\\ /E /I /Y"
+    //       }
+    //     }
+    //   }
+    // }
 
     // stage('Flash to Hardware') {
     //   when {
