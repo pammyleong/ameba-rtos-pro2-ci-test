@@ -7,50 +7,113 @@ import time
 import sys
 
 def main():
-    parser = argparse.ArgumentParser(description="Flash Ameba firmware and check logs for faults.")
-    parser.add_argument('--image_exe', required=True, help='Path to image executable')
-    parser.add_argument('--tools_path', required=True, help='Path to tools folder')
-    parser.add_argument('--com_port', required=True, help='COM port')
-    parser.add_argument('--board', required=True, help='Board name')
-    parser.add_argument('--baud_rate', default=115200, type=int, help='Baud rate for serial monitor (default: 115200)')
+    # 1. Create the argument parser
+    parser = argparse.ArgumentParser(description="Auto Flash Tool Runner")
+
+    # 2. Add arguments
+    parser.add_argument('--tools_path', required=True, help='Path to tools folder (e.g. .)')
+    parser.add_argument('--com_port', required=True, help='COM port (e.g. /dev/ttyUSB0)')
+    parser.add_argument('--baud_rate', type=int, required=True, help='Baud rate (e.g. 115200)')
+
+    # 3. Parse arguments
     args = parser.parse_args()
 
-    cmd = [
-        args.image_exe,
-        args.tools_path,
-        args.com_port,
-        args.board,
-        'Enable',
-        'Disable',
-        '2000000',
-    ]
-
+    # 4. Detect OS and build the command
     system_name = platform.system().lower()
-    if system_name == 'windows':
-        cmd.extend([
-            'uartfwburn.exe',
-            'Auto_Flash_Pro2_V3.3_win.exe'
-        ])
+
+    if system_name == 'linux':
+        cmd = [
+            "./image_tool/Auto_Flash_Pro2_V3.3_linux",
+            args.tools_path,
+            args.com_port,
+            str(args.baud_rate)
+        ]
+    elif system_name == 'windows':
+        cmd = [
+            "./image_tool/Auto_Flash_Pro2_V3.3_win.exe",
+            args.tools_path,
+            args.com_port,
+            str(args.baud_rate)
+        ]
     elif system_name == 'darwin':
-        cmd.extend([
-            'uartfwburn.darwin',
-            'Auto_Flash_Pro2_V3.3_macos.exe'
-        ])
-    elif system_name == 'linux':
-        cmd.extend([
-            'uartfwburn.linux',
-            'Auto_Flash_Pro2_V3.3_linux.exe'
-        ])
+        cmd = [
+            "./image_tool/Auto_Flash_Pro2_V3.3_mac",
+            args.tools_path,
+            args.com_port,
+            str(args.baud_rate)
+        ]
     else:
         raise RuntimeError(f"Unsupported OS: {system_name}")
 
-    cmd.extend([
-        '0x60000',
-        '0x460000',
-        '0x530000'
-    ])
+    # 5. Print the exact shell command
+    print(" ".join(cmd))
+    
+    # parser = argparse.ArgumentParser(description="Flash Ameba firmware and check logs for faults.")
+    # # parser.add_argument('--image_exe', required=True, help='Path to image executable')
+    # # parser.add_argument('--tools_path', required=True, help='Path to tools folder')
+    # parser.add_argument('--com_port', required=True, help='COM port')
+    # #parser.add_argument('--board', required=True, help='Board name')
+    # parser.add_argument('--baud_rate', default=115200, type=int, help='Baud rate for serial monitor (default: 115200)')
+    # args = parser.parse_args()
 
-    print(f"Running: {' '.join(cmd)}")
+    # # # cmd = [
+    # # #     args.image_exe,
+    # # #     # args.tools_path,
+    # # #     args.com_port,
+    # # #     #args.board,
+    # # #     'Enable',
+    # # #     'Disable',
+    # # #     '2000000',
+    # # # ]
+    
+    # # # Build the exact command you want:
+    # # cmd = [
+    # #     args.image_exe,
+    # #     args.tools_path,
+    # #     args.com_port,
+    # #     str(args.baud_rate),
+    # # ]
+
+    # # system_name = platform.system().lower()
+    # # if system_name == 'windows':
+    # #     cmd.extend([
+    # #         'uartfwburn.exe',
+    # #         'Auto_Flash_Pro2_V3.3_win.exe'
+    # #     ])
+    # # elif system_name == 'darwin':
+    # #     cmd.extend([
+    # #         'uartfwburn.darwin',
+    # #         'Auto_Flash_Pro2_V3.3_mac'
+    # #     ])
+    # # elif system_name == 'linux':
+    # #     cmd.extend([
+    # #         'uartfwburn.linux',
+    # #         'Auto_Flash_Pro2_V3.3_linux'
+    # #     ])
+    # # else:
+    # #     raise RuntimeError(f"Unsupported OS: {system_name}")
+    # system_name = platform.system().lower()
+
+    # if system_name == 'linux':
+    #     cmd = [
+    #         "./image_tool/Auto_Flash_Pro2_V3.3_linux",
+    #         ".",
+    #         args.com_port,
+    #         str(args.baud_rate)
+    #     ]
+    # elif system_name == 'windows':
+    #     ...
+    # elif system_name == 'darwin':
+    #     ...
+    # else:
+    #     raise RuntimeError(f"Unsupported OS: {system_name}")
+    # # cmd.extend([
+    # #     '0x60000',
+    # #     '0x460000',
+    # #     '0x530000'
+    # # ])
+
+    # print(f"Running: {' '.join(cmd)}")
 
     try:
         result = subprocess.run(
