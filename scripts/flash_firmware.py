@@ -59,8 +59,8 @@ def main():
 
     cmd = [
         #args.image_exe,
-        str(args.tools_path),
-        str(args.com_port),
+        args.tools_path,
+        args.com_port,
         str(args.baud_rate)
         #args.board,
         # 'Enable',
