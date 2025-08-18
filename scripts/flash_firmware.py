@@ -7,11 +7,14 @@ import time
 import sys
 
 def main():
+    print("Start flashing...")
     # 1. Create the argument parser
     parser = argparse.ArgumentParser(description="Auto Flash Tool Runner")
 
     # 2. Add arguments
-    parser.add_argument('--image_exe', required=True, help='Path to Auto_Flash executable')
+    parser.add_argument('--image_exe', required=True, help='Path to Image Tool executable')
+    parser.add_argument('--auto_flash_exe', required=True, help='Path to Auto_Flash executable')
+    parser.add_argument('--uartfwburn_exe', required=True, help='Path to Flash FW executable')
     # parser.add_argument('--tools_path', required=True, help='Path to tools folder (e.g. .)')
     parser.add_argument('--com_port', required=True, help='COM port (e.g. /dev/ttyUSB0)')
     parser.add_argument('--baud_rate', type=int, required=True, help='Baud rate (e.g. 115200)')
@@ -59,13 +62,17 @@ def main():
 
     cmd = [
         args.image_exe,
-        #args.tools_path,
+        args.auto_flash_exe,
         args.com_port,
-        str(args.baud_rate)
-        #args.board,
-        # 'Enable',
-        # 'Disable',
-        # '2000000',
+        str(args.baud_rate),
+        "{board}",
+        'Enable',
+        'Disable',
+        '2000000',
+        args.uartfwburn_exe,
+        "0x60000",
+        "0x460000",
+        "0x530000"
     ]
     print(cmd)
     # # # Build the exact command you want:
