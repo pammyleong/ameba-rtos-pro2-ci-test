@@ -15,7 +15,6 @@ def main():
     parser.add_argument('--image_exe', required=True, help='Path to Image Tool executable')
     parser.add_argument('--auto_flash_exe', required=True, help='Path to Auto_Flash executable')
     parser.add_argument('--uartfwburn_exe', required=True, help='Path to Flash FW executable')
-    # parser.add_argument('--tools_path', required=True, help='Path to tools folder (e.g. .)')
     parser.add_argument('--com_port', required=True, help='COM port (e.g. /dev/ttyUSB0)')
     parser.add_argument('--baud_rate', type=int, required=True, help='Baud rate (e.g. 115200)')
 
@@ -64,11 +63,10 @@ def main():
         args.image_exe,
         args.auto_flash_exe,
         args.com_port,
-        str(args.baud_rate),
         "{board}",
         'Enable',
         'Disable',
-        '2000000',
+        str(args.baud_rate),
         args.uartfwburn_exe,
         "0x60000",
         "0x460000",
