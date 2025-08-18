@@ -59,15 +59,15 @@ def main():
 
     cmd = [
         #args.image_exe,
-        args.tools_path,
-        args.com_port,
-        args.baud_rate
+        str(args.tools_path),
+        str(args.com_port),
+        str(args.baud_rate)
         #args.board,
         # 'Enable',
         # 'Disable',
         # '2000000',
     ]
-    
+    print(cmd)
     # # # Build the exact command you want:
     # # cmd = [
     # #     args.image_exe,
