@@ -57,15 +57,16 @@ def main():
     # parser.add_argument('--baud_rate', default=115200, type=int, help='Baud rate for serial monitor (default: 115200)')
     # args = parser.parse_args()
 
-    # # # cmd = [
-    # # #     args.image_exe,
-    # # #     # args.tools_path,
-    # # #     args.com_port,
-    # # #     #args.board,
-    # # #     'Enable',
-    # # #     'Disable',
-    # # #     '2000000',
-    # # # ]
+    cmd = [
+        #args.image_exe,
+        args.tools_path,
+        args.com_port,
+        args.baud_rate
+        #args.board,
+        # 'Enable',
+        # 'Disable',
+        # '2000000',
+    ]
     
     # # # Build the exact command you want:
     # # cmd = [
