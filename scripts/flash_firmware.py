@@ -58,8 +58,8 @@ def main():
     # args = parser.parse_args()
 
     cmd = [
-        #args.image_exe,
-        args.tools_path,
+        args.image_exe,
+        #args.tools_path,
         args.com_port,
         str(args.baud_rate)
         #args.board,
