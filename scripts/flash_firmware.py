@@ -22,29 +22,29 @@ def main():
     # 4. Detect OS and build the command
     system_name = platform.system().lower()
 
-    if system_name == 'linux':
-        cmd = [
-            "./image_tool/Auto_Flash_Pro2_V3.3_linux",
-            args.tools_path,
-            args.com_port,
-            str(args.baud_rate)
-        ]
-    elif system_name == 'windows':
-        cmd = [
-            "./image_tool/Auto_Flash_Pro2_V3.3_win.exe",
-            args.tools_path,
-            args.com_port,
-            str(args.baud_rate)
-        ]
-    elif system_name == 'darwin':
-        cmd = [
-            "./image_tool/Auto_Flash_Pro2_V3.3_mac",
-            args.tools_path,
-            args.com_port,
-            str(args.baud_rate)
-        ]
-    else:
-        raise RuntimeError(f"Unsupported OS: {system_name}")
+    # if system_name == 'linux':
+    #     cmd = [
+    #         "./image_tool/Auto_Flash_Pro2_V3.3_linux",
+    #         args.tools_path,
+    #         args.com_port,
+    #         str(args.baud_rate)
+    #     ]
+    # elif system_name == 'windows':
+    #     cmd = [
+    #         "./image_tool/Auto_Flash_Pro2_V3.3_win.exe",
+    #         args.tools_path,
+    #         args.com_port,
+    #         str(args.baud_rate)
+    #     ]
+    # elif system_name == 'darwin':
+    #     cmd = [
+    #         "./image_tool/Auto_Flash_Pro2_V3.3_mac",
+    #         args.tools_path,
+    #         args.com_port,
+    #         str(args.baud_rate)
+    #     ]
+    # else:
+    #     raise RuntimeError(f"Unsupported OS: {system_name}")
 
     # 5. Print the exact shell command
     print(" ".join(cmd))
