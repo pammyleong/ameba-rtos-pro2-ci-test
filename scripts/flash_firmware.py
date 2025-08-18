@@ -12,7 +12,7 @@ def main():
 
     # 2. Add arguments
     parser.add_argument('--image_exe', required=True, help='Path to Auto_Flash executable')
-    parser.add_argument('--tools_path', required=True, help='Path to tools folder (e.g. .)')
+    # parser.add_argument('--tools_path', required=True, help='Path to tools folder (e.g. .)')
     parser.add_argument('--com_port', required=True, help='COM port (e.g. /dev/ttyUSB0)')
     parser.add_argument('--baud_rate', type=int, required=True, help='Baud rate (e.g. 115200)')
 
@@ -20,7 +20,7 @@ def main():
     args = parser.parse_args()
 
     # 4. Detect OS and build the command
-    system_name = platform.system().lower()
+    # system_name = platform.system().lower()
 
     # if system_name == 'linux':
     #     cmd = [
