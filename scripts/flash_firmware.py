@@ -47,7 +47,7 @@ def main():
     #     raise RuntimeError(f"Unsupported OS: {system_name}")
 
     # 5. Print the exact shell command
-    print(" ".join(cmd))
+    # print(" ".join(cmd))
     
     # parser = argparse.ArgumentParser(description="Flash Ameba firmware and check logs for faults.")
     # # parser.add_argument('--image_exe', required=True, help='Path to image executable')
