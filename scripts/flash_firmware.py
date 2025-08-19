@@ -6,26 +6,37 @@ import serial
 import time
 import sys
 
-def serial_monitor(port, baudrate):
-    print(f"Opening serial port {port} at {baudrate} baud...")
+def serial_monitor(port, baudrate, start_delay=2.0):
+    print(f"\nOpening serial port {port} at {baudrate} baud...")
     try:
-        with serial.Serial(port, baudrate, timeout=1) as ser:
-            time.sleep(2)  # give board time to reset
-            print("\n--- Serial monitor --- (Press CTRL+C to stop)\n")
+        with serial.Serial(port, baudrate, timeout=0.2) as ser:
+            # Optional: pulse DTR/RTS like Arduino to (re)start serial prints
+            try:
+                ser.dtr = False; ser.rts = False
+                time.sleep(0.05)
+                ser.dtr = True;  ser.rts = True
+            except Exception:
+                pass
 
+            time.sleep(start_delay)       # give the board time after reset
+            ser.reset_input_buffer()      # drop boot noise
+
+            print("\n--- Serial monitor ---\n")
+            buf = bytearray()
             while True:
                 try:
-                    line = ser.readline().decode("utf-8", errors="ignore").strip()
-                    if line:
-                        print(line)
-                except UnicodeDecodeError:
-                    # If some bytes can't be decoded, just skip them
-                    continue
+                    chunk = ser.read(256)  # non-blocking-ish
+                    if chunk:
+                        buf.extend(chunk)
+                        # Print complete lines if any
+                        while b'\n' in buf:
+                            line, _, buf = buf.partition(b'\n')
+                            print(line.decode('utf-8', 'ignore').rstrip('\r'), flush=True)
                 except KeyboardInterrupt:
                     print("\n--- Serial monitor stopped ---")
                     break
     except serial.SerialException as e:
-        print(f"Error opening serial port: {e}")
+        print(f"Error opening serial port: {e}", file=sys.stderr)
 
 def main():
     print("Start flashing...")
@@ -51,7 +62,6 @@ def main():
     ]
     
     print("Running:", " ".join(cmd1))
-    subprocess.run(cmd1, check=True)   # <-- run cmd1 firs
     try:
         result1 = subprocess.run(
             cmd1,
@@ -63,11 +73,6 @@ def main():
     except Exception as e:
         print(f"Error running flash command: {e}")
         sys.exit(1)
-        
-    output1 = result1.stdout
-    print("--- Flashing log start ---")
-    print(output1)
-    print("--- Flashing log end ---")
 
     if result1.returncode != 0:
         print(f"Flashing tool returned non-zero exit code: {result1.returncode}")
