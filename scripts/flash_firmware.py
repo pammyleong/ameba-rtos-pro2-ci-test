@@ -6,38 +6,6 @@ import serial
 import time
 import sys
 
-def serial_monitor(port, baudrate, start_delay=2.0):
-    print(f"\nOpening serial port {port} at {baudrate} baud...")
-    try:
-        with serial.Serial(port, baudrate, timeout=0.2) as ser:
-            # Optional: pulse DTR/RTS like Arduino to (re)start serial prints
-            try:
-                ser.dtr = False; ser.rts = False
-                time.sleep(0.05)
-                ser.dtr = True;  ser.rts = True
-            except Exception:
-                pass
-
-            time.sleep(start_delay)       # give the board time after reset
-            ser.reset_input_buffer()      # drop boot noise
-
-            print("\n--- Serial monitor ---\n")
-            buf = bytearray()
-            while True:
-                try:
-                    chunk = ser.read(256)  # non-blocking-ish
-                    if chunk:
-                        buf.extend(chunk)
-                        # Print complete lines if any
-                        while b'\n' in buf:
-                            line, _, buf = buf.partition(b'\n')
-                            print(line.decode('utf-8', 'ignore').rstrip('\r'), flush=True)
-                except KeyboardInterrupt:
-                    print("\n--- Serial monitor stopped ---")
-                    break
-    except serial.SerialException as e:
-        print(f"Error opening serial port: {e}", file=sys.stderr)
-
 def main():
     print("Start flashing...")
     parser = argparse.ArgumentParser(description="Auto Flash Tool Runner")
@@ -112,7 +80,6 @@ def main():
     # print("Flashing completed successfully with no hard fault detected.")
 
     # === Start serial monitor ===
-    serial_monitor(args.com_port, 115200)
     # print(f"Opening serial port {args.com_port} at {args.baud_rate} baud...")
     # try:
     #     ser = serial.Serial(args.com_port, args.baud_rate, timeout=1)
