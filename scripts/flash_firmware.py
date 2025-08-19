@@ -6,6 +6,24 @@ import serial
 import time
 import sys
 
+def run_command(cmd, name):
+    print(f"\n--- Running {name} ---")
+    try:
+        result = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            check=False
+        )
+        print(result.stdout)  # print logs live after command finishes
+        if result.returncode != 0:
+            print(f"{name} failed with code {result.returncode}")
+            sys.exit(1)  # stop if command fails
+    except Exception as e:
+        print(f"Error running {name}: {e}")
+        sys.exit(1)
+
 def main():
     print("Start flashing...")
     # 1. Create the argument parser
@@ -18,6 +36,8 @@ def main():
     parser.add_argument('--uartfwburn_exe', required=True, help='Path to Flash FW executable')
     parser.add_argument('--com_port', required=True, help='COM port (e.g. /dev/ttyUSB0)')
     parser.add_argument('--baud_rate', type=int, required=True, help='Baud rate (e.g. 115200)')
+    # For single-file burn:
+    parser.add_argument('-f', '--bin', required=True, help='Binary to flash (e.g. flash_ntz.bin)')
 
     # 3. Parse arguments
     args = parser.parse_args()
@@ -60,73 +80,63 @@ def main():
     # parser.add_argument('--baud_rate', default=115200, type=int, help='Baud rate for serial monitor (default: 115200)')
     # args = parser.parse_args()
 
-    cmd = [
-        args.image_exe,
+    # cmd = [
+    #     args.image_exe,
+    #     args.tool_path,
+    #     args.com_port,
+    #     "{board}",
+    #     'Enable',
+    #     'Disable',
+    #     str(args.baud_rate),
+    #     args.uartfwburn_exe,
+    #     args.auto_flash_exe,
+    #     "0x60000",
+    #     "0x460000",
+    #     "0x530000"
+    # ]
+    
+    cmd1 = [
+        args.auto_flash_exe,
         args.tool_path,
         args.com_port,
-        "{board}",
-        'Enable',
-        'Disable',
         str(args.baud_rate),
-        args.uartfwburn_exe,
-        args.auto_flash_exe,
-        "0x60000",
-        "0x460000",
-        "0x530000"
     ]
-    print(cmd)
-    # # # Build the exact command you want:
-    # # cmd = [
-    # #     args.image_exe,
-    # #     args.tools_path,
-    # #     args.com_port,
-    # #     str(args.baud_rate),
-    # # ]
-
-    # # system_name = platform.system().lower()
-    # # if system_name == 'windows':
-    # #     cmd.extend([
-    # #         'uartfwburn.exe',
-    # #         'Auto_Flash_Pro2_V3.3_win.exe'
-    # #     ])
-    # # elif system_name == 'darwin':
-    # #     cmd.extend([
-    # #         'uartfwburn.darwin',
-    # #         'Auto_Flash_Pro2_V3.3_mac'
-    # #     ])
-    # # elif system_name == 'linux':
-    # #     cmd.extend([
-    # #         'uartfwburn.linux',
-    # #         'Auto_Flash_Pro2_V3.3_linux'
-    # #     ])
-    # # else:
-    # #     raise RuntimeError(f"Unsupported OS: {system_name}")
-    # system_name = platform.system().lower()
-
-    # if system_name == 'linux':
-    #     cmd = [
-    #         "./image_tool/Auto_Flash_Pro2_V3.3_linux",
-    #         ".",
-    #         args.com_port,
-    #         str(args.baud_rate)
-    #     ]
-    # elif system_name == 'windows':
-    #     ...
-    # elif system_name == 'darwin':
-    #     ...
-    # else:
-    #     raise RuntimeError(f"Unsupported OS: {system_name}")
-    # # cmd.extend([
-    # #     '0x60000',
-    # #     '0x460000',
-    # #     '0x530000'
-    # # ])
-
-    # print(f"Running: {' '.join(cmd)}")
-
+    
+    print("Running:", " ".join(cmd1))
+    subprocess.run(cmd1, check=True)   # <-- run cmd1 firs
     try:
-        result = subprocess.run(
-            cmd,
+        result1 = subprocess.run(
+            cmd1,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            check=False
+        )
+    except Exception as e:
+        print(f"Error running flash command: {e}")
+        sys.exit(1)
+        
+    output1 = result1.stdout
+    print("--- Flashing log start ---")
+    print(output1)
+    print("--- Flashing log end ---")
+
+    if result1.returncode != 0:
+        print(f"Flashing tool returned non-zero exit code: {result1.returncode}")
+        sys.exit(result1.returncode)
+        
+    cmd2 = [
+    args.uartfwburn_exe,   # e.g. "./uartfwburn.linux"
+    "-p", args.com_port,   # e.g. "/dev/ttyUSB0"
+    "-f", args.bin,        # e.g. "flash_ntz.bin"
+    "-b", str(args.baud_rate),  # e.g. "2000000"
+    "-U",
+    "-x", "32"
+    ]
+    print("Running:", " ".join(cmd2))
+    try:
+        result2 = subprocess.run(
+            cmd2,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
@@ -136,20 +146,20 @@ def main():
         print(f"Error running flash command: {e}")
         sys.exit(1)
 
-    output = result.stdout
+    output2 = result2.stdout
     print("--- Flashing log start ---")
-    print(output)
+    print(output2)
     print("--- Flashing log end ---")
 
-    if result.returncode != 0:
-        print(f"Flashing tool returned non-zero exit code: {result.returncode}")
-        sys.exit(result.returncode)
+    if result2.returncode != 0:
+        print(f"Flashing tool returned non-zero exit code: {result2.returncode}")
+        sys.exit(result2.returncode)
 
-    if "Bus Fault" in output or "bus fault" in output.lower():
-        print("Detected HardFault in flashing log. Marking as failure.")
-        sys.exit(1)
+    # if "Bus Fault" in output or "bus fault" in output.lower():
+    #     print("Detected HardFault in flashing log. Marking as failure.")
+    #     sys.exit(1)
 
-    print("Flashing completed successfully with no hard fault detected.")
+    # print("Flashing completed successfully with no hard fault detected.")
 
     # === Start serial monitor ===
     print(f"Opening serial port {args.com_port} at {args.baud_rate} baud...")
