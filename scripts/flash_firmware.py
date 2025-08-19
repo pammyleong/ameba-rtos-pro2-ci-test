@@ -6,95 +6,43 @@ import serial
 import time
 import sys
 
-def run_command(cmd, name):
-    print(f"\n--- Running {name} ---")
+def serial_monitor(port, baudrate):
+    print(f"Opening serial port {port} at {baudrate} baud...")
     try:
-        result = subprocess.run(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            check=False
-        )
-        print(result.stdout)  # print logs live after command finishes
-        if result.returncode != 0:
-            print(f"{name} failed with code {result.returncode}")
-            sys.exit(1)  # stop if command fails
-    except Exception as e:
-        print(f"Error running {name}: {e}")
-        sys.exit(1)
+        with serial.Serial(port, baudrate, timeout=1) as ser:
+            time.sleep(2)  # give board time to reset
+            print("\n--- Serial monitor --- (Press CTRL+C to stop)\n")
+
+            while True:
+                try:
+                    line = ser.readline().decode("utf-8", errors="ignore").strip()
+                    if line:
+                        print(line)
+                except UnicodeDecodeError:
+                    # If some bytes can't be decoded, just skip them
+                    continue
+                except KeyboardInterrupt:
+                    print("\n--- Serial monitor stopped ---")
+                    break
+    except serial.SerialException as e:
+        print(f"Error opening serial port: {e}")
 
 def main():
     print("Start flashing...")
-    # 1. Create the argument parser
     parser = argparse.ArgumentParser(description="Auto Flash Tool Runner")
 
-    # 2. Add arguments
     parser.add_argument('--image_exe', required=True, help='Path to Image Tool executable')
     parser.add_argument('--auto_flash_exe', required=True, help='Path to Auto_Flash executable')
     parser.add_argument('--tool_path', required=True, help='Path to tools executable')
     parser.add_argument('--uartfwburn_exe', required=True, help='Path to Flash FW executable')
     parser.add_argument('--com_port', required=True, help='COM port (e.g. /dev/ttyUSB0)')
     parser.add_argument('--baud_rate', type=int, required=True, help='Baud rate (e.g. 115200)')
+    
     # For single-file burn:
     parser.add_argument('-f', '--bin', required=True, help='Binary to flash (e.g. flash_ntz.bin)')
 
-    # 3. Parse arguments
     args = parser.parse_args()
 
-    # 4. Detect OS and build the command
-    # system_name = platform.system().lower()
-
-    # if system_name == 'linux':
-    #     cmd = [
-    #         "./image_tool/Auto_Flash_Pro2_V3.3_linux",
-    #         args.tools_path,
-    #         args.com_port,
-    #         str(args.baud_rate)
-    #     ]
-    # elif system_name == 'windows':
-    #     cmd = [
-    #         "./image_tool/Auto_Flash_Pro2_V3.3_win.exe",
-    #         args.tools_path,
-    #         args.com_port,
-    #         str(args.baud_rate)
-    #     ]
-    # elif system_name == 'darwin':
-    #     cmd = [
-    #         "./image_tool/Auto_Flash_Pro2_V3.3_mac",
-    #         args.tools_path,
-    #         args.com_port,
-    #         str(args.baud_rate)
-    #     ]
-    # else:
-    #     raise RuntimeError(f"Unsupported OS: {system_name}")
-
-    # 5. Print the exact shell command
-    # print(" ".join(cmd))
-    
-    # parser = argparse.ArgumentParser(description="Flash Ameba firmware and check logs for faults.")
-    # # parser.add_argument('--image_exe', required=True, help='Path to image executable')
-    # # parser.add_argument('--tools_path', required=True, help='Path to tools folder')
-    # parser.add_argument('--com_port', required=True, help='COM port')
-    # #parser.add_argument('--board', required=True, help='Board name')
-    # parser.add_argument('--baud_rate', default=115200, type=int, help='Baud rate for serial monitor (default: 115200)')
-    # args = parser.parse_args()
-
-    # cmd = [
-    #     args.image_exe,
-    #     args.tool_path,
-    #     args.com_port,
-    #     "{board}",
-    #     'Enable',
-    #     'Disable',
-    #     str(args.baud_rate),
-    #     args.uartfwburn_exe,
-    #     args.auto_flash_exe,
-    #     "0x60000",
-    #     "0x460000",
-    #     "0x530000"
-    # ]
-    
     cmd1 = [
         args.auto_flash_exe,
         args.tool_path,
@@ -145,11 +93,8 @@ def main():
     except Exception as e:
         print(f"Error running flash command: {e}")
         sys.exit(1)
-
-    output2 = result2.stdout
-    print("--- Flashing log start ---")
-    print(output2)
-    print("--- Flashing log end ---")
+        
+    print("--- Image uploaded ---")
 
     if result2.returncode != 0:
         print(f"Flashing tool returned non-zero exit code: {result2.returncode}")
@@ -162,23 +107,24 @@ def main():
     # print("Flashing completed successfully with no hard fault detected.")
 
     # === Start serial monitor ===
-    print(f"Opening serial port {args.com_port} at {args.baud_rate} baud...")
-    try:
-        ser = serial.Serial(args.com_port, args.baud_rate, timeout=1)
-        time.sleep(2)  # Give MCU time to reset after flash
-        print("--- Serial monitor --- (Press CTRL+C to stop)")
+    serial_monitor(args.com_port, 115200)
+    # print(f"Opening serial port {args.com_port} at {args.baud_rate} baud...")
+    # try:
+    #     ser = serial.Serial(args.com_port, args.baud_rate, timeout=1)
+    #     time.sleep(2)  # Give MCU time to reset after flash
+    #     print("--- Serial monitor --- (Press CTRL+C to stop)")
 
-        while True:
-            line = ser.readline().decode('utf-8', errors='ignore').strip()
-            if line:
-                print(line)
+    #     while True:
+    #         line = ser.readline().decode('utf-8', errors='ignore').strip()
+    #         if line:
+    #             print(line)
 
-    except KeyboardInterrupt:
-        print("\nSerial monitor stopped by user.")
+    # except KeyboardInterrupt:
+    #     print("\nSerial monitor stopped by user.")
 
-    except serial.SerialException as e:
-        print(f"Serial error: {e}")
-        sys.exit(1)
+    # except serial.SerialException as e:
+    #     print(f"Serial error: {e}")
+    #     sys.exit(1)
 
 if __name__ == '__main__':
     main()
