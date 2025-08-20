@@ -61,19 +61,23 @@ def main():
         sys.exit(result2.returncode)
 
     print("\n--- Image uploaded ---")
-
-    # --- Open miniterm after flashing ---
+    
+    # Create the serial instance first
+    ser = serial.serial_for_url(args.com_port, baudrate=int(args.baud_rate))
+    
+    # Pass it into Miniterm
     mt = miniterm.Miniterm(
-        port=args.com_port,
-        baudrate=int(args.baud_rate),
-        rtscts=False, xonxoff=False, dsrdtr=False
+        ser,
+        echo=False,
+        eol='crlf',   # or 'cr' / 'lf' depending on your logs
+        filters=[]
     )
     mt.exit_character = '\x1d'  # Ctrl-]
     mt.menu_character = '\x14'  # Ctrl-T
     mt.set_rx_encoding('utf-8')
     mt.set_tx_encoding('utf-8')
 
-    print(f"\nOpening miniterm on {args.com_port} @ {args.baud_rate} baud...")
+    print(f"\nOpening miniterm on {args.com_port} @ {args.baud_rate}")
     print("Press Ctrl-] to exit.\n")
 
     mt.start()
