@@ -1,3 +1,4 @@
 {
-    "iis.configDir": ""
+    "iis.configDir": "",
+    "cmake.sourceDirectory": "E:/0-SDK_GitHub_Pammy_Repo/For_self/ameba-rtos-pro2-ci-test/component/os/freertos/freertos_v202210.01/Source"
 }

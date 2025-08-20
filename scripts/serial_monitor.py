@@ -28,14 +28,15 @@ def serial_logger(port, baud, duration=10):
 def main():
     
     print("Opening Serial Monitor...")
-    parser = argparse.ArgumentParser(description="Auto Flash Tool Runner")
+    # parser = argparse.ArgumentParser(description="Auto Flash Tool Runner")
 
-    parser.add_argument('--com_port', required=True, help='COM port (e.g. /dev/ttyUSB0)')
-    parser.add_argument('--baud_rate', type=int, required=True, help='Baud rate (e.g. 115200)')
+    # parser.add_argument('--com_port', required=True, help='COM port (e.g. /dev/ttyUSB0)')
+    # parser.add_argument('--baud_rate', type=int, required=True, help='Baud rate (e.g. 115200)')
 
-    args = parser.parse_args()
-
-    serial_logger(args.com_port, str(args.baud_rate), duration=100)
+    # args = parser.parse_args()
+    comport = "COM5"
+    baudrate = "115200"
+    serial_logger(comport, baudrate, duration=30)
 
 if __name__ == "__main__":
     main()

@@ -5,6 +5,7 @@ import argparse
 import serial
 import time
 import sys
+from serial.tools import miniterm
 
 def main():
     print("Start flashing...")
@@ -21,17 +22,24 @@ def main():
     parser.add_argument('-f', '--bin', required=True, help='Binary to flash (e.g. flash_ntz.bin)')
 
     args = parser.parse_args()
-    
-    # --- Flash commands ---
+
     cmd1 = [
         args.auto_flash_exe,
         args.tool_path,
         args.com_port,
         str(args.baud_rate),
     ]
+    
     print("Running:", " ".join(cmd1))
+    
     try:
-        result1 = subprocess.run(cmd1, text=True)
+        result1 = subprocess.run(
+            cmd1,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            check=False
+        )
     except Exception as e:
         print(f"Error running flash command: {e}")
         sys.exit(1)
@@ -39,27 +47,61 @@ def main():
     if result1.returncode != 0:
         print(f"Flashing tool returned non-zero exit code: {result1.returncode}")
         sys.exit(result1.returncode)
-
+        
     cmd2 = [
-        args.uartfwburn_exe,
-        "-p", args.com_port,
-        "-f", args.bin,
-        "-b", str(args.baud_rate),
-        "-U",
-        "-x", "32"
+    args.uartfwburn_exe,   # e.g. "./uartfwburn.linux"
+    "-p", args.com_port,   # e.g. "/dev/ttyUSB0"
+    "-f", args.bin,        # e.g. "flash_ntz.bin"
+    "-b", str(args.baud_rate),  # e.g. "2000000"
+    "-U",
+    "-x", "32"
     ]
     print("Running:", " ".join(cmd2))
+
     try:
-        result2 = subprocess.run(cmd2, text=True)
+        result2 = subprocess.run(
+            cmd2,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            check=False
+        )
     except Exception as e:
         print(f"Error running flash command: {e}")
         sys.exit(1)
+        
+    print("--- Image uploaded ---")
 
     if result2.returncode != 0:
-        print(f"UART fwburn returned non-zero exit code: {result2.returncode}")
+        print(f"Flashing tool returned non-zero exit code: {result2.returncode}")
         sys.exit(result2.returncode)
+        
+    print("--- Flashing end ---")
 
-    print("\n--- Image uploaded ---")
+    # if "Bus Fault" in output or "bus fault" in output.lower():
+    #     print("Detected HardFault in flashing log. Marking as failure.")
+    #     sys.exit(1)
+
+    # print("Flashing completed successfully with no hard fault detected.")
+
+    # === Start serial monitor ===
+    # print(f"Opening serial port {args.com_port} at {args.baud_rate} baud...")
+    # try:
+    #     ser = serial.Serial(args.com_port, args.baud_rate, timeout=1)
+    #     time.sleep(2)  # Give MCU time to reset after flash
+    #     print("--- Serial monitor --- (Press CTRL+C to stop)")
+
+    #     while True:
+    #         line = ser.readline().decode('utf-8', errors='ignore').strip()
+    #         if line:
+    #             print(line)
+
+    # except KeyboardInterrupt:
+    #     print("\nSerial monitor stopped by user.")
+
+    # except serial.SerialException as e:
+    #     print(f"Serial error: {e}")
+    #     sys.exit(1)
 
 if __name__ == '__main__':
     main()
