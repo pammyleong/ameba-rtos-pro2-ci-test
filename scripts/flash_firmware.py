@@ -108,9 +108,9 @@ def main():
     # print("Flashing completed successfully with no hard fault detected.")
 
     # === Start serial monitor ===
-    print(f"Opening serial port {args.com_port} at {args.baud_rate} baud...")
+    print(f"Opening serial port {args.com_port} at 115200 baud rate...")
     try:
-        ser = serial.Serial(args.com_port, args.baud_rate, timeout=1)
+        ser = serial.Serial(args.com_port, "115200", timeout=1)
         time.sleep(2)  # Give MCU time to reset after flash
         print("--- Serial monitor --- (Press CTRL+C to stop)")
 
