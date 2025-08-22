@@ -24,19 +24,28 @@ def serial_logger(port, baud, duration=10):
                 print(line.decode("utf-8", errors="replace"), end="", flush=True)
     finally:
         ser.close()
+        
+def hw_reset(port, hold_ms=50):
+    """Toggle DTR to reset (polarity can vary by board)."""
+    try:
+        with serial.Serial(port, 115200, timeout=0.2) as s:
+            # Try a falling-edge pulse on DTR (common reset)
+            s.setDTR(True);  time.sleep(0.05)
+            s.setDTR(False); time.sleep(hold_ms/1000.0)
+            s.setDTR(True);  time.sleep(0.05)
+    except Exception as e:
+        print(f"Reset toggle failed (continuing): {e}", flush=True)
 
 def main():
-    
     print("Opening Serial Monitor...")
-    parser = argparse.ArgumentParser(description="Auto Flash Tool Runner")
+    parser = argparse.ArgumentParser(description="Serial Monitor")
 
     parser.add_argument('--com_port', required=True, help='COM port (e.g. /dev/ttyUSB0)')
     parser.add_argument('--baud_rate', type=int, required=True, help='Baud rate (e.g. 115200)')
 
     args = parser.parse_args()
-    # comport = "COM5"
-    # baudrate = "115200"
-    serial_logger(args.com_port, str(args.baud_rate), duration=30)
+   
+    serial_logger(args.com_port, str(args.baud_rate), duration=20)
 
 if __name__ == "__main__":
     main()

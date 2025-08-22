@@ -7,6 +7,19 @@ import time
 import sys
 from serial.tools import miniterm
 
+# def serial_logger(port, baud, duration=10):
+#     ser = serial.Serial(port, baudrate=int(baud), timeout=0.2)
+#     end = time.time() + duration
+#     try:
+#         print("\n--- Image uploaded ---", flush=True)
+#         print(f"Tailing {port} @ {baud} for {duration}s...\n", flush=True)
+#         while time.time() < end:
+#             line = ser.readline()
+#             if line:
+#                 print(line.decode("utf-8", errors="replace"), end="", flush=True)
+#     finally:
+#         ser.close()
+        
 def main():
     print("Start flashing...")
     parser = argparse.ArgumentParser(description="Auto Flash Tool Runner")
@@ -54,7 +67,7 @@ def main():
     "-f", args.bin,        # e.g. "flash_ntz.bin"
     "-b", str(args.baud_rate),  # e.g. "2000000"
     "-U",
-    "-x", "32"
+    "-x", "32", "-r"
     ]
     print("Running:", " ".join(cmd2))
 
@@ -77,6 +90,16 @@ def main():
         sys.exit(result2.returncode)
         
     print("--- Flashing end ---")
+    
+    # print("Opening Serial Monitor...")
+    # parser = argparse.ArgumentParser(description="Serial Monitor")
+
+    # parser.add_argument('--com_port', required=True, help='COM port (e.g. /dev/ttyUSB0)')
+    # parser.add_argument('--baud_rate', type=int, required=True, help='Baud rate (e.g. 115200)')
+
+    # args = parser.parse_args()
+   
+    # serial_logger(args.com_port, str(args.baud_rate), duration=20)
 
     # if "Bus Fault" in output or "bus fault" in output.lower():
     #     print("Detected HardFault in flashing log. Marking as failure.")
@@ -85,23 +108,23 @@ def main():
     # print("Flashing completed successfully with no hard fault detected.")
 
     # === Start serial monitor ===
-    # print(f"Opening serial port {args.com_port} at {args.baud_rate} baud...")
-    # try:
-    #     ser = serial.Serial(args.com_port, args.baud_rate, timeout=1)
-    #     time.sleep(2)  # Give MCU time to reset after flash
-    #     print("--- Serial monitor --- (Press CTRL+C to stop)")
+    print(f"Opening serial port {args.com_port} at {args.baud_rate} baud...")
+    try:
+        ser = serial.Serial(args.com_port, args.baud_rate, timeout=1)
+        time.sleep(2)  # Give MCU time to reset after flash
+        print("--- Serial monitor --- (Press CTRL+C to stop)")
 
-    #     while True:
-    #         line = ser.readline().decode('utf-8', errors='ignore').strip()
-    #         if line:
-    #             print(line)
+        while True:
+            line = ser.readline().decode('utf-8', errors='ignore').strip()
+            if line:
+                print(line)
 
-    # except KeyboardInterrupt:
-    #     print("\nSerial monitor stopped by user.")
+    except KeyboardInterrupt:
+        print("\nSerial monitor stopped by user.")
 
-    # except serial.SerialException as e:
-    #     print(f"Serial error: {e}")
-    #     sys.exit(1)
+    except serial.SerialException as e:
+        print(f"Serial error: {e}")
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()
